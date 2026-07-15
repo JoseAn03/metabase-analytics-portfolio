@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # ====== n8n - Automatización Low-Code ======
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=analyst123
+      - DB_TYPE=mysqldb
+      - DB_MYSQLDB_HOST=mysql
+      - DB_MYSQLDB_PORT=3306
+      - DB_MYSQLDB_DATABASE=n8n
+      - DB_MYSQLDB_USER=analyst
+      - DB_MYSQLDB_PASSWORD=analyst123
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - analytics-net
+
+  # ====== MySQL/MariaDB - Base de Datos ======
+  mysql:
+    image: mariadb:11
+    container_name: mysql-analytics
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      - ./data:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=analytics
+      - MYSQL_USER=analyst
+      - MYSQL_PASSWORD=analyst123
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - analytics-net
+
+  # ====== Metabase - BI / Dashboards ======
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./metabase_data:/metabase.db
+    environment:
+      - MB_DB_TYPE=mysql
+      - MB_DB_DBNAME=metabase
+      - MB_DB_HOST=mysql
+      - MB_DB_PORT=3306
+      - MB_DB_USER=analyst
+      - MB_DB_PASS=analyst123
+      - MB_SITE_URL=http://localhost:3000
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - analytics-net
+
+networks:
+  analytics-net:
+    driver: bridge
