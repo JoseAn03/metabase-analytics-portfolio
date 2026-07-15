@@ -107,15 +107,15 @@ docker compose up -d
 metabase-analytics-portfolio/
 ├── README.md                 # Este archivo
 ├── docker-compose.yml        # Stack completo (n8n + MySQL + Metabase)
+├── guides/
+│   ├── duckdb-setup.md       # Cómo conectar DuckDB a Metabase
+│   └── queries-dashboard.md  # Queries SQL y layout del dashboard
 ├── data/
+│   ├── analytics.duckdb      # Base de datos DuckDB con datos SJO reales
 │   ├── sample_reservas.sql   # Datos de ejemplo (reservas SJO)
 │   └── sample_vuelos.sql     # Datos de ejemplo (vuelos)
-├── dashboards/
-│   ├── operaciones-sjo.json  # Export dashboard
-│   ├── kpi-semanales.json
-│   └── vuelos-analisis.json
-└── metabase-queries/
-    └── queries-ejemplo.md    # Preguntas útiles en Metabase
+└── dashboards/
+    └── (export dashboard JSON here)
 ```
 
 ---
